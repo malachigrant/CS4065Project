@@ -1,6 +1,9 @@
+import java.awt.geom.*;
+
 private class Vector {
-  private float x, y;
-  public Vector(float x, float y) {
+  private double x, y;
+  
+  public Vector(double x, double y) {
     this.x = x;
     this.y = y;
   }
@@ -14,34 +17,43 @@ private class Vector {
     this.y *= v.getY();
   }
   
-  public void setX(float x) {
+  public void setX(double x) {
     this.x = x;
   }
-  public void setY(float y) {
+  public void setY(double y) {
     this.y = y;
   }
   
-  public float getX() {
+  public double getX() {
     return x;
   }
-  public float getY() {
+  public double getY() {
     return y;
   }
 }
+
+public Vector addVectors(Vector v1, Vector v2) {
+  return new Vector(v1.getX() + v2.getX(), v1.getY() + v2.getY());
+}
+public Line2D lineFromVectors(Vector v1, Vector v2) {
+  return new Line2D.Double(v1.getX(), v1.getY(), v2.getX(), v2.getY());
+}
+
 private class Ball {
   
-  private static final float INITIAL_X_SPEED = 4;
-  private static final float INITIAL_Y_SPEED = 4;
-  private static final float BALL_RADIUS = 25;
+  private static final double INITIAL_X_SPEED = 240 / FPS;
+  private static final double INITIAL_Y_SPEED = 240 / FPS;
+  private static final double BALL_RADIUS = 25;
   private Vector position;
   private Vector velocity;
+  private double speedMult = 1.05; // applied every time the ball is redirected by a paddle
   
   public Ball(Side side) {
     init(side);
   }
   public void init(Side side) {
     position = new Vector(width / 2, height / 2);
-    float xDirection = (side == Side.LEFT ? -1 : 1);
+    double xDirection = (side == Side.LEFT ? -1 : 1);
     velocity = new Vector(INITIAL_X_SPEED * xDirection, INITIAL_Y_SPEED);
   }
   
@@ -50,26 +62,44 @@ private class Ball {
   }
   
   public void switchXDirection() {
-    velocity.mult(new Vector(-1, 1));
+    velocity.mult(new Vector(-speedMult, speedMult));
   }
   
+  // This is probably a terrible way to detect collisions.
   public boolean detectCollision(Paddle paddle) {
-    Vector paddlePosition = paddle.getPosition();
-    float edgeX = position.getX();
-    float edgeY = position.getY();
-    if (position.getX() < paddlePosition.getX()) {
-      edgeX = paddlePosition.getX();
-    } else if (position.getX() > paddlePosition.getX() + Paddle.WIDTH) {
-      edgeX = paddlePosition.getX() + Paddle.WIDTH;
+    Line2D paddleLine = paddle.getCollisionLine();
+    if ((paddle.getSide() == Side.LEFT && paddleLine.getX1() - (position.getX() - BALL_RADIUS) > Math.abs(velocity.getX()))
+        || (paddle.getSide() == Side.RIGHT && (position.getX() + BALL_RADIUS) - paddleLine.getX1() > velocity.getX())){
+      println(paddleLine.getX1() - (position.getX() - BALL_RADIUS), velocity.getX());
+      // ball is too far gone... ignore
+      return false;
     }
-    if (position.getY() < paddlePosition.getY()) {
-      edgeY = paddlePosition.getY();
-    } else if (position.getY() > paddlePosition.getY() + paddle.getHeight()) {
-      edgeY = paddlePosition.getY() + paddle.getHeight();
-    }
-    float distance = sqrt(pow(edgeX - position.getX(), 2) + pow(edgeY - position.getY(), 2));
     
-    return distance < BALL_RADIUS;
+    double angle = Math.atan(velocity.y / velocity.x) + Math.PI / 2;
+    Vector oldPosition = addVectors(position, new Vector(-velocity.getX(), -velocity.getY()));
+    Vector rayOffset = new Vector(Math.cos(angle) * BALL_RADIUS, Math.sin(angle) * BALL_RADIUS);
+    Vector start1 = addVectors(oldPosition, rayOffset);
+    rayOffset.mult(new Vector(-1, -1));
+    Vector start2 = addVectors(oldPosition, rayOffset);
+    Line2D ray1 = lineFromVectors(start1, addVectors(start1, velocity));
+    Line2D ray2 = lineFromVectors(start2, addVectors(start2, velocity));
+    Line2D ray3 = lineFromVectors(addVectors(position, new Vector(BALL_RADIUS, 0)), addVectors(position, new Vector(-BALL_RADIUS, 0)));
+    // Uncomment below for debugging collision detecting
+    /* stroke(255, 0, 0);
+    line((float)ray1.getX1(), (float)ray1.getY1(), (float)ray1.getX2(), (float)ray1.getY2());
+    line((float)ray3.getX1(), (float)ray3.getY1(), (float)ray3.getX2(), (float)ray3.getY2());
+    line((float)ray2.getX1(), (float)ray2.getY1(), (float)ray2.getX2(), (float)ray2.getY2());
+    stroke(255); */
+    if (ray1.intersectsLine(paddleLine) || ray2.intersectsLine(paddleLine) || ray3.intersectsLine(paddleLine)) {
+      if (velocity.getX() < 0) {
+        position.add(new Vector((paddleLine.getX1() - (position.getX() - BALL_RADIUS)) * 2, 0));
+      } else {
+        position.add(new Vector(-((position.getX() + BALL_RADIUS) - paddleLine.getX1()) * 2, 0));
+      }
+      return true;
+    }
+    
+    return false;
   }
   
   public void update() {
@@ -84,14 +114,14 @@ private class Ball {
     }
   }
   public void render() {
-    circle(position.getX(), position.getY(), BALL_RADIUS * 2);
+    circle((float)position.getX(), (float)position.getY(), (float)BALL_RADIUS * 2);
   }
 }
 
 private class Paddle {
-  static final int WIDTH = 15;
-  static final int MARGIN = 50;
-  static final int BASE_SPEED = 4;
+  public static final int WIDTH = 15;
+  public static final int MARGIN = 50;
+  public static final int BASE_SPEED = 480 / FPS;
   private int paddleHeight;
   private int top;
   private Side side;
@@ -102,6 +132,15 @@ private class Paddle {
     this.side = side;
   }
   
+  public Side getSide() {
+    return side;
+  }
+  
+  public Line2D getCollisionLine() {
+    double xPosition = getPosition().getX() + (side == Side.LEFT ? WIDTH : 0);
+    return new Line2D.Double(xPosition, top, xPosition, top + paddleHeight);
+  }
+  
   public int getHeight() {
     return paddleHeight;
   }
@@ -109,14 +148,24 @@ private class Paddle {
     return new Vector((side == Side.LEFT ? MARGIN : width - MARGIN - WIDTH), top);
   }
   
+  public Vector getCenter() {
+    return new Vector(getPosition().getX() + WIDTH / 2, getPosition().getY() + paddleHeight / 2);
+  }
+  
   public void render() {
     Vector position = getPosition();
-    rect(position.getX(), position.getY(), WIDTH, paddleHeight);
+    rect((float)position.getX(), (float)position.getY(), WIDTH, paddleHeight);
   }
   public void moveUp() {
     top -= BASE_SPEED;
+    if (top < 0) {
+      top = 0;
+    }
   }
   public void moveDown() {
     top += BASE_SPEED;
+    if (top + paddleHeight > height) {
+      top = height - paddleHeight;
+    }
   }
 }

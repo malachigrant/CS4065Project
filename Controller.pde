@@ -6,7 +6,7 @@ private abstract class Controller {
   public Controller(Side side, Ball ball) {
     this.side = side;
     this.ball = ball;
-    this.paddle = new Paddle(250, 25, side);
+    this.paddle = new Paddle(150, 25, side);
   }
   
   public void render() {
@@ -46,9 +46,10 @@ private class AI extends Controller {
   
   public void update() {
     super.update();
-    if (ball.getPosition().getY() > paddle.getPosition().getY() + paddle.getHeight() / 2) {
+    double diff = ball.getPosition().getY() - paddle.getCenter().getY();
+    if (diff > Paddle.BASE_SPEED) {
       paddle.moveDown();
-    } else if (ball.getPosition().getY() < paddle.getPosition().getY() + paddle.getHeight() / 2) {
+    } else if (diff < -Paddle.BASE_SPEED) {
       paddle.moveUp();
     }
   }
