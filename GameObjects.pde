@@ -48,13 +48,15 @@ private class Ball {
   private Vector velocity;
   private double speedMult = 1.05; // applied every time the ball is redirected by a paddle
   
-  public Ball(Side side) {
-    init(side);
+  public Ball() {
+    init();
   }
-  public void init(Side side) {
+  public void init() {
+    Side side = (random(1) < 0.5 ? Side.LEFT : Side.RIGHT);
+    double yDirection = (random(1) < 0.5 ? -1 : 1);
     position = new Vector(width / 2, height / 2);
     double xDirection = (side == Side.LEFT ? -1 : 1);
-    velocity = new Vector(INITIAL_X_SPEED * xDirection, INITIAL_Y_SPEED);
+    velocity = new Vector(INITIAL_X_SPEED * xDirection, INITIAL_Y_SPEED * yDirection);
   }
   
   public Vector getPosition() {
@@ -65,15 +67,34 @@ private class Ball {
     velocity.mult(new Vector(-speedMult, speedMult));
   }
   
+  public boolean detectScore(Side side) {
+    boolean result = false;
+    if (side == Side.LEFT && position.getX() < 0) {
+      result = true;
+    } else if (side == Side.RIGHT && position.getX() > width) {
+      result = true;
+    }
+    
+    if (result == true) {
+      init();
+    }
+    return result;
+  }
+  
   // This is probably a terrible way to detect collisions.
   public boolean detectCollision(Paddle paddle) {
     Line2D paddleLine = paddle.getCollisionLine();
-    if ((paddle.getSide() == Side.LEFT && paddleLine.getX1() - (position.getX() - BALL_RADIUS) > Math.abs(velocity.getX()))
-        || (paddle.getSide() == Side.RIGHT && (position.getX() + BALL_RADIUS) - paddleLine.getX1() > velocity.getX())){
+    if (paddle.getSide() == Side.LEFT && velocity.getX() > 0
+        || paddle.getSide() == Side.RIGHT && velocity.getX() < 0) {
+      return false;
+    }
+    /* double threshold = Math.abs(velocity.getX()) * 20;
+    if ((paddle.getSide() == Side.LEFT && paddleLine.getX1() - (position.getX() - BALL_RADIUS) > threshold)
+        || (paddle.getSide() == Side.RIGHT && (position.getX() + BALL_RADIUS) - paddleLine.getX1() > threshold)){
       println(paddleLine.getX1() - (position.getX() - BALL_RADIUS), velocity.getX());
       // ball is too far gone... ignore
       return false;
-    }
+    }*/
     
     double angle = Math.atan(velocity.y / velocity.x) + Math.PI / 2;
     Vector oldPosition = addVectors(position, new Vector(-velocity.getX(), -velocity.getY()));
@@ -92,9 +113,9 @@ private class Ball {
     stroke(255); */
     if (ray1.intersectsLine(paddleLine) || ray2.intersectsLine(paddleLine) || ray3.intersectsLine(paddleLine)) {
       if (velocity.getX() < 0) {
-        position.add(new Vector((paddleLine.getX1() - (position.getX() - BALL_RADIUS)) * 2, 0));
+        //position.add(new Vector((paddleLine.getX1() - (position.getX() - BALL_RADIUS)) * 2, 0));
       } else {
-        position.add(new Vector(-((position.getX() + BALL_RADIUS) - paddleLine.getX1()) * 2, 0));
+        //position.add(new Vector(-((position.getX() + BALL_RADIUS) - paddleLine.getX1()) * 2, 0));
       }
       return true;
     }
