@@ -10,6 +10,13 @@ private abstract class Controller {
     this.paddle = new Paddle(150, 25, side);
   }
   
+  public void increaseDifficulty() {
+    paddle.shorten();
+  }
+  public void decreaseDifficulty() {
+    paddle.lengthen();
+  }
+  
   public void render() {
     paddle.render();
     text("" + score, (side == Side.LEFT ? Paddle.MARGIN * 2 : width - Paddle.MARGIN * 2), 25);
@@ -18,7 +25,7 @@ private abstract class Controller {
     if (ball.detectCollision(paddle)) {
       ball.switchXDirection();
     }
-    if (ball.detectScore(side)) {
+    if (ball.detectScore((side == Side.LEFT ? Side.RIGHT : Side.LEFT))) {
       score++;
     }
   }
@@ -58,4 +65,8 @@ private class AI extends Controller {
       paddle.moveUp();
     }
   }
+}
+
+private interface ScoreListener {
+  void onScore(Side side);
 }

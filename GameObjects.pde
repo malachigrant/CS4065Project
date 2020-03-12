@@ -46,11 +46,17 @@ private class Ball {
   private static final double BALL_RADIUS = 25;
   private Vector position;
   private Vector velocity;
+  private ScoreListener listener;
   private double speedMult = 1.05; // applied every time the ball is redirected by a paddle
   
   public Ball() {
     init();
   }
+  
+  public void setListener(ScoreListener listener) {
+    this.listener = listener;
+  }
+  
   public void init() {
     Side side = (random(1) < 0.5 ? Side.LEFT : Side.RIGHT);
     double yDirection = (random(1) < 0.5 ? -1 : 1);
@@ -76,6 +82,7 @@ private class Ball {
     }
     
     if (result == true) {
+      listener.onScore(side);
       init();
     }
     return result;
@@ -143,6 +150,7 @@ private class Paddle {
   public static final int WIDTH = 15;
   public static final int MARGIN = 50;
   public static final int BASE_SPEED = 480 / FPS;
+  private static final int DIFFICULTY_MODIFIER = 20;
   private int paddleHeight;
   private int top;
   private Side side;
@@ -151,6 +159,15 @@ private class Paddle {
     this.paddleHeight = paddleHeight;
     this.top = top;
     this.side = side;
+  }
+  
+  public void shorten() {
+    paddleHeight -= DIFFICULTY_MODIFIER;
+    top += DIFFICULTY_MODIFIER / 2;
+  }
+  public void lengthen() {
+    paddleHeight += DIFFICULTY_MODIFIER;
+    top -= DIFFICULTY_MODIFIER / 2;
   }
   
   public Side getSide() {

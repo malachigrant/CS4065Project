@@ -16,6 +16,15 @@ void setup() {
   ball = new Ball();
   p1 = new Player(Side.LEFT, ball);
   p2 = new AI(Side.RIGHT, ball);
+  ball.setListener(new ScoreListener() {
+    public void onScore(Side side) {
+      if (side == Side.RIGHT) {
+        p1.increaseDifficulty();
+      } else {
+        p1.decreaseDifficulty();
+      }
+    }
+  });
 }
 
 void draw() {
