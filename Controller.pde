@@ -11,10 +11,10 @@ private abstract class Controller {
   }
   
   public void increaseDifficulty() {
-    paddle.shorten();
+    paddle.increaseDifficulty();
   }
   public void decreaseDifficulty() {
-    paddle.lengthen();
+    paddle.decreaseDifficulty();
   }
   
   public void render() {

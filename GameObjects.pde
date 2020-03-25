@@ -65,6 +65,13 @@ private class Ball {
     velocity = new Vector(INITIAL_X_SPEED * xDirection, INITIAL_Y_SPEED * yDirection);
   }
   
+  public void increaseDifficulty() {
+    
+  }
+  public void decreaseDifficulty() {
+    
+  }
+  
   public Vector getPosition() {
     return position;
   }
@@ -150,7 +157,11 @@ private class Paddle {
   public static final int WIDTH = 15;
   public static final int MARGIN = 50;
   public static final int BASE_SPEED = 480 / FPS;
-  private static final int DIFFICULTY_MODIFIER = 20;
+  private static final int PADDLE_DIFFICULTY_MODIFIER = 20;
+  private static final double SPEED_DIFFICULTY_STEP = 0.1;
+  private static final double SPEED_DIFFICULTY_MAX = 2;
+  private static final double SPEED_DIFFICULTY_MIN = 0.5;
+  private double speedMult = 1;
   private int paddleHeight;
   private int top;
   private Side side;
@@ -161,13 +172,13 @@ private class Paddle {
     this.side = side;
   }
   
-  public void shorten() {
-    paddleHeight -= DIFFICULTY_MODIFIER;
-    top += DIFFICULTY_MODIFIER / 2;
+  public void increaseDifficulty() {
+    // paddleHeight -= PADDLE_DIFFICULTY_MODIFIER; top += PADDLE_DIFFICULTY_MODIFIER / 2;
+    speedMult = speedMult >= SPEED_DIFFICULTY_MAX ? SPEED_DIFFICULTY_MAX : speedMult + SPEED_DIFFICULTY_STEP;
   }
-  public void lengthen() {
-    paddleHeight += DIFFICULTY_MODIFIER;
-    top -= DIFFICULTY_MODIFIER / 2;
+  public void decreaseDifficulty() {
+    // paddleHeight += PADDLE_DIFFICULTY_MODIFIER; top -= PADDLE_DIFFICULTY_MODIFIER / 2;
+    speedMult = speedMult <= SPEED_DIFFICULTY_MIN ? SPEED_DIFFICULTY_MIN : speedMult - SPEED_DIFFICULTY_STEP;
   }
   
   public Side getSide() {
@@ -195,13 +206,13 @@ private class Paddle {
     rect((float)position.getX(), (float)position.getY(), WIDTH, paddleHeight);
   }
   public void moveUp() {
-    top -= BASE_SPEED;
+    top -= BASE_SPEED * speedMult;
     if (top < 0) {
       top = 0;
     }
   }
   public void moveDown() {
-    top += BASE_SPEED;
+    top += BASE_SPEED * speedMult;
     if (top + paddleHeight > height) {
       top = height - paddleHeight;
     }
