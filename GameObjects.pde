@@ -39,11 +39,23 @@ public Line2D lineFromVectors(Vector v1, Vector v2) {
   return new Line2D.Double(v1.getX(), v1.getY(), v2.getX(), v2.getY());
 }
 
+public double clamp(double num, double min, double max) {
+  if (num < min) {
+    return min;
+  } else if (num > max) {
+    return max;
+  }
+  return num;
+}
+
 private class Ball {
   
   private static final double INITIAL_X_SPEED = 240 / FPS;
   private static final double INITIAL_Y_SPEED = 240 / FPS;
   private static final double BALL_RADIUS = 25;
+  private static final double SPEED_MULT_STEP = 0.01;
+  private static final double SPEED_MULT_MAX = 1.1;
+  private static final double SPEED_MULT_MIN = 1.01;
   private Vector position;
   private Vector velocity;
   private ScoreListener listener;
@@ -66,11 +78,10 @@ private class Ball {
   }
   
   public void increaseDifficulty() {
-    
+    speedMult = clamp(speedMult + SPEED_MULT_STEP, SPEED_MULT_MIN, SPEED_MULT_MAX);
   }
   public void decreaseDifficulty() {
-    
-  }
+    speedMult = clamp(speedMult - SPEED_MULT_STEP, SPEED_MULT_MIN, SPEED_MULT_MAX);  }
   
   public Vector getPosition() {
     return position;
@@ -174,11 +185,11 @@ private class Paddle {
   
   public void increaseDifficulty() {
     // paddleHeight -= PADDLE_DIFFICULTY_MODIFIER; top += PADDLE_DIFFICULTY_MODIFIER / 2;
-    speedMult = speedMult >= SPEED_DIFFICULTY_MAX ? SPEED_DIFFICULTY_MAX : speedMult + SPEED_DIFFICULTY_STEP;
+    speedMult = clamp(speedMult - SPEED_DIFFICULTY_STEP,  SPEED_DIFFICULTY_MIN, SPEED_DIFFICULTY_MAX);
   }
   public void decreaseDifficulty() {
     // paddleHeight += PADDLE_DIFFICULTY_MODIFIER; top -= PADDLE_DIFFICULTY_MODIFIER / 2;
-    speedMult = speedMult <= SPEED_DIFFICULTY_MIN ? SPEED_DIFFICULTY_MIN : speedMult - SPEED_DIFFICULTY_STEP;
+    speedMult = clamp(speedMult + SPEED_DIFFICULTY_STEP,  SPEED_DIFFICULTY_MIN, SPEED_DIFFICULTY_MAX);
   }
   
   public Side getSide() {

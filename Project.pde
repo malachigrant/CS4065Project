@@ -18,11 +18,11 @@ void setup() {
   scoreListener = new ScoreListener() {
     public void onScore(Side side) {
       if (side == Side.RIGHT) {
-        p1.increaseDifficulty();
+        //p1.increaseDifficulty();
         p2.decreaseDifficulty();
         ball.increaseDifficulty();
       } else {
-        p1.decreaseDifficulty();
+        //p1.decreaseDifficulty();
         p2.increaseDifficulty();
         ball.decreaseDifficulty();
       }
