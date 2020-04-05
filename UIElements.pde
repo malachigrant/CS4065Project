@@ -1,11 +1,14 @@
+import java.util.*;
+
 interface UIElement {
  public void render();
  public void update();
 }
 interface ClickListener {
-  public void onClick();
+  public void onClick(String id);
 }
 class Button implements UIElement {
+ private String id;
  private int sizeX;
  private int sizeY;
  private int positionX;
@@ -15,7 +18,8 @@ class Button implements UIElement {
  
  private boolean _prevMousePressed = false;
  
- public Button(int sx, int sy, int px, int py, String text) {
+ public Button(String id, int sx, int sy, int px, int py, String text) {
+   this.id = id;
    sizeX = sx;
    sizeY = sy;
    positionX = px;
@@ -28,17 +32,40 @@ class Button implements UIElement {
  
  public void render() {
    push();
-   fill(255);
+   fill(isMouseOver() ? 210 : 255);
    rect(positionX, positionY, sizeX, sizeY);
    fill(0);
    text(this.text, positionX + (sizeX / 2), positionY + (sizeY / 2));
    pop();
  }
+ private boolean isMouseOver() {
+   return mouseX > positionX && mouseX < positionX + sizeX
+       && mouseY > positionY && mouseY < positionY + sizeY;
+ }
  public void update() {
-   if (!_prevMousePressed && mousePressed && mouseX > positionX && mouseX < positionX + sizeX
-       && mouseY > positionY && mouseY < positionY + sizeY) {
-     listener.onClick();
+   if (listener != null && !_prevMousePressed && mousePressed && isMouseOver()) {
+     listener.onClick(id);
    }
    _prevMousePressed = mousePressed;
  }
+}
+
+class Screen {
+  private List<UIElement> elements;
+  
+  public Screen() {
+    elements = new ArrayList();
+  }
+  
+  public void addElement(UIElement element) {
+    elements.add(element);
+  }
+  
+  public void render() {
+    background(200);
+    for (UIElement element : elements) {
+      element.update();
+      element.render();
+    }
+  }
 }

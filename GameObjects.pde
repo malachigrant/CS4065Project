@@ -50,8 +50,8 @@ public double clamp(double num, double min, double max) {
 
 private class Ball {
   
-  private static final double INITIAL_X_SPEED = 240 / FPS;
-  private static final double INITIAL_Y_SPEED = 240 / FPS;
+  private static final double INITIAL_X_SPEED = 400 / FPS;
+  private static final double INITIAL_Y_SPEED = 400 / FPS;
   private static final double BALL_RADIUS = 25;
   private static final double SPEED_MULT_STEP = 0.01;
   private static final double SPEED_MULT_MAX = 1.1;
@@ -100,7 +100,9 @@ private class Ball {
     }
     
     if (result == true) {
-      listener.onScore(side);
+      if (listener != null) {
+        listener.onScore(side);
+      }
       init();
     }
     return result;
@@ -174,13 +176,17 @@ private class Paddle {
   private static final double SPEED_DIFFICULTY_MIN = 0.5;
   private double speedMult = 1;
   private int paddleHeight;
-  private int top;
+  private double top;
   private Side side;
   
-  public Paddle(int paddleHeight, int top, Side side) {
+  public Paddle(int paddleHeight, double top, Side side) {
     this.paddleHeight = paddleHeight;
     this.top = top;
     this.side = side;
+  }
+  
+  public void setSpeed(double speed) {
+    speedMult = speed;
   }
   
   public void increaseDifficulty() {
@@ -223,6 +229,7 @@ private class Paddle {
     }
   }
   public void moveDown() {
+    println("mult: " + speedMult);
     top += BASE_SPEED * speedMult;
     if (top + paddleHeight > height) {
       top = height - paddleHeight;

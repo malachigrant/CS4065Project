@@ -10,6 +10,10 @@ private abstract class Controller {
     this.paddle = new Paddle(150, 25, side);
   }
   
+  public void setPaddleSpeed(double speed) {
+    paddle.setSpeed(speed);
+  }
+  
   public void increaseDifficulty() {
     paddle.increaseDifficulty();
   }
@@ -59,9 +63,12 @@ private class AI extends Controller {
   public void update() {
     super.update();
     double diff = ball.getPosition().getY() - paddle.getCenter().getY();
-    if (diff > Paddle.BASE_SPEED) {
+    if (Math.abs(diff) < Paddle.BASE_SPEED) {
+      return;
+    }
+    if (diff > 0) {
       paddle.moveDown();
-    } else if (diff < -Paddle.BASE_SPEED) {
+    } else {
       paddle.moveUp();
     }
   }
