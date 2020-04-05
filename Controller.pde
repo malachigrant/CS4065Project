@@ -1,3 +1,14 @@
+Map<Integer, Boolean> heldKeys = new HashMap<Integer, Boolean>();
+void keyPressed() {
+  heldKeys.put(keyCode, true);
+}
+void keyReleased() {
+  heldKeys.remove(keyCode);
+}
+boolean isKeyHeld(int code) {
+  return heldKeys.getOrDefault(code, false);
+}
+
 private abstract class Controller {
   Paddle paddle;
   private Side side;
@@ -10,15 +21,19 @@ private abstract class Controller {
     this.paddle = new Paddle(150, 25, side);
   }
   
+  public int getScore() {
+    return score;
+  }
+  
   public void setPaddleSpeed(double speed) {
     paddle.setSpeed(speed);
   }
   
-  public void increaseDifficulty() {
-    paddle.increaseDifficulty();
+  public void increaseDifficulty(double mult) {
+    paddle.increaseDifficulty(mult);
   }
-  public void decreaseDifficulty() {
-    paddle.decreaseDifficulty();
+  public void decreaseDifficulty(double mult) {
+    paddle.decreaseDifficulty(mult);
   }
   
   public void render() {
@@ -45,12 +60,11 @@ private class Player extends Controller {
   
   public void update() {
     super.update();
-    if (keyPressed) {
-      if (keyCode == UP) {
-        paddle.moveUp();
-      } else if (keyCode == DOWN) {
-        paddle.moveDown();
-      }
+    if (isKeyHeld(UP)) {
+      paddle.moveUp();
+    }
+    if (isKeyHeld(DOWN)) {
+      paddle.moveDown();
     }
   }
 }

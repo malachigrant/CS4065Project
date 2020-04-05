@@ -21,11 +21,11 @@ void setup() {
     public void onScore(Side side) {
       if (side == Side.RIGHT) {
         //p1.increaseDifficulty();
-        p2.decreaseDifficulty();
+        p2.decreaseDifficulty(Math.pow(1.1, p1.getScore() - p2.getScore()));
         ball.increaseDifficulty();
       } else {
         //p1.decreaseDifficulty();
-        p2.increaseDifficulty();
+        p2.increaseDifficulty(Math.pow(1.1, p2.getScore() - p1.getScore()));
         ball.decreaseDifficulty();
       }
     }
@@ -71,6 +71,7 @@ void setup() {
   menu.addElement(btnMedium);
   menu.addElement(btnHard);
   menu.addElement(btnDynamic);
+  menu.addElement(new Label(width / 2, height / 4, "Choose a difficulty"));
 }
 
 void draw() {

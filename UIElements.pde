@@ -7,6 +7,27 @@ interface UIElement {
 interface ClickListener {
   public void onClick(String id);
 }
+class Label implements UIElement {
+  private int positionX;
+  private int positionY;
+  private String text;
+  
+  public Label(int px, int py, String text) {
+    positionX = px;
+    positionY = py;
+    this.text = text;
+  }
+  
+  public void render() {
+    push();
+    fill(0);
+    text(this.text, positionX, positionY);
+    pop();
+  }
+  public void update() {
+    // no updates necessary
+  }
+}
 class Button implements UIElement {
  private String id;
  private int sizeX;

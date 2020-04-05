@@ -189,13 +189,13 @@ private class Paddle {
     speedMult = speed;
   }
   
-  public void increaseDifficulty() {
+  public void increaseDifficulty(double mult) {
     // paddleHeight -= PADDLE_DIFFICULTY_MODIFIER; top += PADDLE_DIFFICULTY_MODIFIER / 2;
-    speedMult = clamp(speedMult - SPEED_DIFFICULTY_STEP,  SPEED_DIFFICULTY_MIN, SPEED_DIFFICULTY_MAX);
+    speedMult = clamp(speedMult - mult * SPEED_DIFFICULTY_STEP,  SPEED_DIFFICULTY_MIN, SPEED_DIFFICULTY_MAX);
   }
-  public void decreaseDifficulty() {
+  public void decreaseDifficulty(double mult) {
     // paddleHeight += PADDLE_DIFFICULTY_MODIFIER; top -= PADDLE_DIFFICULTY_MODIFIER / 2;
-    speedMult = clamp(speedMult + SPEED_DIFFICULTY_STEP,  SPEED_DIFFICULTY_MIN, SPEED_DIFFICULTY_MAX);
+    speedMult = clamp(speedMult + mult * SPEED_DIFFICULTY_STEP,  SPEED_DIFFICULTY_MIN, SPEED_DIFFICULTY_MAX);
   }
   
   public Side getSide() {
@@ -229,7 +229,6 @@ private class Paddle {
     }
   }
   public void moveDown() {
-    println("mult: " + speedMult);
     top += BASE_SPEED * speedMult;
     if (top + paddleHeight > height) {
       top = height - paddleHeight;
