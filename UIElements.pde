@@ -136,18 +136,22 @@ class Circle extends UIElement {
 }
 
 class SingleChoiceQuestion extends UIElement {
-  Label label1;
-  Label label2;
-  Label label3;
-  Label label4;
+  Label[] labels;
   Circle[] circles;
-  public SingleChoiceQuestion(String id, int px, int py, String text) {
+  public SingleChoiceQuestion(String id, int px, int py, String text, int answerCount) {
     super(id);
-    label1 = new Label("lbl" + id, px, py, text);
-    label2 = new Label("lblDisagree" + id, px - 100, py + 80, "Disagree", 16);
-    label3 = new Label("lblNeutral" + id, px, py + 80, "Neutral", 16);
-    label4 = new Label("lblAgree" + id, px + 105, py + 80, "Agree", 16);
-    circles = new Circle[5];
+    if (answerCount == 5) {
+      labels = new Label[4];
+      labels[1] = new Label("lblDisagree" + id, px - 100, py + 80, "Disagree", 16);
+      labels[2] = new Label("lblNeutral" + id, px, py + 80, "Neutral", 16);
+      labels[3] = new Label("lblAgree" + id, px + 105, py + 80, "Agree", 16);
+    } else if (answerCount == 2) {
+      labels = new Label[3];
+      labels[1] = new Label("lblStage1" + id, px - 50, py + 80, "Stage 1", 16);
+      labels[2] = new Label("lblStage2" + id, px + 50, py + 80, "Stage 2", 16);
+    }
+    labels[0] = new Label("lbl" + id, px, py, text);
+    circles = new Circle[answerCount];
     ClickListener listener = new ClickListener() {
         void onClick(String id) {
           for (Circle circle : circles) {
@@ -159,14 +163,21 @@ class SingleChoiceQuestion extends UIElement {
           }
         }
     };
-    for (int i = -2; i < 3; i++) {
-      circles[i + 2] = new Circle("circle(" + i + ")" + id, px + 50 * i, py + 50, 20);
-      circles[i + 2].setClickListener(listener);
+    int loopStart = 0;
+    if (answerCount % 2 == 0) {
+      loopStart = -answerCount + 1;
+    } else {
+      loopStart = -answerCount + 1;
+    }
+    for (int i = loopStart; i <= -loopStart; i+=2) {
+      int circleIndex = (i - loopStart) / 2;
+      circles[circleIndex] = new Circle("circle(" + circleIndex + ")" + id, px + 50 * i, py + 50, 20);
+      circles[circleIndex].setClickListener(listener);
     }
   }
   
   int getAnswer() {
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < circles.length; i++) {
       if (circles[i].getFilled()) {
         return i;
       }
@@ -175,10 +186,9 @@ class SingleChoiceQuestion extends UIElement {
   }
   
   void render() {
-    label1.render();
-    label2.render();
-    label3.render();
-    label4.render();
+    for (Label label : labels) {
+      label.render();
+    }
     for (Circle circle : circles) {
       circle.render();
     }
@@ -192,13 +202,22 @@ class SingleChoiceQuestion extends UIElement {
 
 class Screen {
   private Map<String, UIElement> elements;
+  private ClickListener listener = null;
+  private String id;
   
-  public Screen() {
+  private boolean _prevMousePressed = false;
+  
+  public Screen(String id) {
+    this.id = id;
     elements = new HashMap();
   }
   
   public void addElement(UIElement element) {
     elements.put(element.getId(), element);
+  }
+  
+  public void addClickListener(ClickListener listener) {
+    this.listener = listener;
   }
   
   public UIElement getElementById(String id) {
@@ -211,5 +230,9 @@ class Screen {
       element.update();
       element.render();
     }
+    if (mousePressed && !_prevMousePressed && listener != null) {
+      listener.onClick(id);
+    }
+    _prevMousePressed = mousePressed;
   }
 }

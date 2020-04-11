@@ -60,6 +60,8 @@ private class Ball {
   private Vector velocity;
   private ScoreListener listener;
   private double speedMult = 1.05; // applied every time the ball is redirected by a paddle
+  private int delay; // wait a second before ball starts moving
+  private int ballColor = 255;
   
   public Ball() {
     init();
@@ -70,6 +72,7 @@ private class Ball {
   }
   
   public void init() {
+    delay = FPS;
     Side side = (random(1) < 0.5 ? Side.LEFT : Side.RIGHT);
     double yDirection = (random(1) < 0.5 ? -1 : 1);
     position = new Vector(width / 2, height / 2);
@@ -151,6 +154,16 @@ private class Ball {
   }
   
   public void update() {
+    if (delay > 0) {
+      delay--;
+      if (delay % (FPS / 3) == 0) {
+        ballColor = 0;
+      } else if ((delay + FPS / 6) % (FPS / 3) == 0) {
+        ballColor = 255;
+      }
+      return;
+    }
+    ballColor = 255;
     position.add(velocity);
     Vector invertVertical = new Vector(1, -1);
     if (position.getY() < BALL_RADIUS) {
@@ -162,7 +175,10 @@ private class Ball {
     }
   }
   public void render() {
+    push();
+    fill(ballColor);
     circle((float)position.getX(), (float)position.getY(), (float)BALL_RADIUS * 2);
+    pop();
   }
 }
 

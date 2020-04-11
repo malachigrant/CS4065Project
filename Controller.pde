@@ -25,6 +25,10 @@ private abstract class Controller {
     return score;
   }
   
+  public void setScore(int score) {
+    this.score = score;
+  }
+  
   public void setPaddleSpeed(double speed) {
     paddle.setSpeed(speed);
   }
