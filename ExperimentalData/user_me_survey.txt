@@ -1,0 +1,2 @@
+UserID, Stage2Difficulty, AnswerIndex
+me, easy, 0

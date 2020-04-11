@@ -1,0 +1,5 @@
+UserID, Difficulty, PlayerScore, AIScore
+me, dynamic, 1, 0
+me, dynamic, 2, 0
+me, easy, 1, 0
+me, easy, 2, 0

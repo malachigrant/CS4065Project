@@ -136,6 +136,7 @@ class Circle extends UIElement {
 }
 
 class SingleChoiceQuestion extends UIElement {
+  private static final int CIRCLE_SPACING = 75;
   Label[] labels;
   Circle[] circles;
   public SingleChoiceQuestion(String id, int px, int py, String text, int answerCount) {
@@ -145,10 +146,11 @@ class SingleChoiceQuestion extends UIElement {
       labels[1] = new Label("lblDisagree" + id, px - 100, py + 80, "Disagree", 16);
       labels[2] = new Label("lblNeutral" + id, px, py + 80, "Neutral", 16);
       labels[3] = new Label("lblAgree" + id, px + 105, py + 80, "Agree", 16);
-    } else if (answerCount == 2) {
-      labels = new Label[3];
-      labels[1] = new Label("lblStage1" + id, px - 50, py + 80, "Stage 1", 16);
-      labels[2] = new Label("lblStage2" + id, px + 50, py + 80, "Stage 2", 16);
+    } else if (answerCount == 3) {
+      labels = new Label[4];
+      labels[1] = new Label("lblStage1" + id, px - 150, py + 80, "Stage 1", 16);
+      labels[2] = new Label("lblStage2" + id, px + 150, py + 80, "Stage 2", 16);
+      labels[3] = new Label("lblEqual" + id, px, py + 80, "Both were equally enjoyable", 16);
     }
     labels[0] = new Label("lbl" + id, px, py, text);
     circles = new Circle[answerCount];
@@ -171,7 +173,7 @@ class SingleChoiceQuestion extends UIElement {
     }
     for (int i = loopStart; i <= -loopStart; i+=2) {
       int circleIndex = (i - loopStart) / 2;
-      circles[circleIndex] = new Circle("circle(" + circleIndex + ")" + id, px + 50 * i, py + 50, 20);
+      circles[circleIndex] = new Circle("circle(" + circleIndex + ")" + id, px + CIRCLE_SPACING * i, py + 50, 20);
       circles[circleIndex].setClickListener(listener);
     }
   }

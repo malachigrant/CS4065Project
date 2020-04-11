@@ -16,6 +16,7 @@ String nextDifficulty = "";
 String difficulty = "";
 String userId;
 PrintWriter output;
+PrintWriter output2;
 
 void initDifficulty() {
   if (difficulty.equals("dynamic")) {
@@ -39,8 +40,10 @@ void setup() {
   userId = showInputDialog("Enter user ID:");
   if (userId != null && !userId.isEmpty()) {
     output = createWriter("ExperimentalData/user_" + userId + "_scoring.txt");
+    output2 = createWriter("ExperimentalData/user_" + userId + "_survey.txt");
   }
   writeData(output, "UserID, Difficulty, PlayerScore, AIScore");
+  writeData(output2, "UserID, Stage2Difficulty, AnswerIndex");
   fullScreen();
   frameRate(FPS);
   font = createFont("times.ttf", 32);
@@ -76,8 +79,13 @@ void setup() {
           difficulty = nextDifficulty;
           nextDifficulty = null;
           initDifficulty();
-          p1.setScore(0);
-          p2.setScore(0);
+          if (side == Side.RIGHT) {
+            p1.setScore(-1);
+            p2.setScore(0);
+          } else {
+            p2.setScore(-1);
+            p1.setScore(0);
+          }
           return;
         }
         currentScreen = surveyScreen;
@@ -123,14 +131,16 @@ void setup() {
   menuScreen.addElement(btnHard);
   menuScreen.addElement(new Label("lblDifficulty", width / 2, height / 4, "Choose a difficulty, then Stage 1 will begin."));
 
-  final SingleChoiceQuestion surveyQ1 = new SingleChoiceQuestion("surveyQ1", width / 2, height / 2 - 50, "Which stage was more enjoyable, Stage 1, or Stage 2?", 2);
+  final SingleChoiceQuestion surveyQ1 = new SingleChoiceQuestion("surveyQ1", width / 2, height / 2 - 50, "Which stage was more enjoyable, Stage 1, or Stage 2?", 3);
   Button submitSurvey = new Button("btnSubmit", width / 4, 100, 3 * width / 8, 3 * height / 4, "Submit");
   submitSurvey.setClickListener(new ClickListener() {
     public void onClick(String id) {
-      writeData(output, userId + ", " + difficulty + ", x, x, " + surveyQ1.getAnswer());
+      writeData(output2, userId + ", " + difficulty + ", " + surveyQ1.getAnswer());
       if (output != null) {
         output.flush();
         output.close();
+        output2.flush();
+        output2.close();
       }
       exit();
     }
