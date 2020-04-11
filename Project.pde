@@ -1,5 +1,7 @@
 import static javax.swing.JOptionPane.*;
 static final int FPS = 120;
+static final double DIFFICULTY_FACTOR = 1.3;
+static final int WIN_SCORE = 6;
 
 Controller p1,p2;
 Ball ball;
@@ -12,10 +14,19 @@ Screen currentScreen = menuScreen;
 String difficulty = "";
 String userId;
 PrintWriter output;
+
+void writeData(PrintWriter out, String in) {
+  if (out != null) {
+    out.println(in);
+  }
+}
+
 void setup() {
   userId = showInputDialog("Enter user ID:");
-  output = createWriter("ExperimentalData/user_" + userId + "_scoring.txt");
-  output.println("UserID, Difficulty, PlayerScore, AIScore");
+  if (userId != null && !userId.isEmpty()) {
+    output = createWriter("ExperimentalData/user_" + userId + "_scoring.txt");
+  }
+  writeData(output, "UserID, Difficulty, PlayerScore, AIScore");
   fullScreen();
   frameRate(FPS);
   font = createFont("times.ttf", 32);
@@ -28,19 +39,24 @@ void setup() {
     public void onScore(Side side) {
       int score1 = p1.getScore();
       int score2 = p2.getScore();
+      boolean isDynamic = difficulty.equals("dynamic");
       if (side == Side.RIGHT) {
         //p1.increaseDifficulty();
-        p2.decreaseDifficulty(Math.pow(1.1, score1 - score2));
-        ball.increaseDifficulty();
+        if (isDynamic) {
+          p2.decreaseDifficulty(Math.pow(DIFFICULTY_FACTOR, score1 - score2));
+          ball.increaseDifficulty();
+        }
         score1++;
       } else {
         //p1.decreaseDifficulty();
-        p2.increaseDifficulty(Math.pow(1.1, score2 - score1));
-        ball.decreaseDifficulty();
+        if (isDynamic) {
+          p2.increaseDifficulty(Math.pow(DIFFICULTY_FACTOR, score2 - score1));
+          ball.decreaseDifficulty();
+        }
         score2++;
       }
-      output.println(userId + ", " + difficulty + ", " + score1 + ", " + score2);
-      if (score1 > 10 || score2 > 10) {
+      writeData(output, userId + ", " + difficulty + ", " + score1 + ", " + score2);
+      if (score1 > WIN_SCORE - 1 || score2 > WIN_SCORE - 1) {
         currentScreen = surveyScreen;
       }
     }
@@ -93,9 +109,11 @@ void setup() {
   Button submitSurvey = new Button("btnSubmit", width / 4, 100, 3 * width / 8, 3 * height / 4, "Submit");
   submitSurvey.setClickListener(new ClickListener() {
     public void onClick(String id) {
-      output.println(userId + ", " + difficulty + ", x, x, " + surveyQ1.getAnswer());
-      output.flush();
-      output.close();
+      writeData(output, userId + ", " + difficulty + ", x, x, " + surveyQ1.getAnswer());
+      if (output != null) {
+        output.flush();
+        output.close();
+      }
       exit();
     }
   });

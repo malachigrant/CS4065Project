@@ -50,7 +50,7 @@ public double clamp(double num, double min, double max) {
 
 private class Ball {
   
-  private static final double INITIAL_X_SPEED = 400 / FPS;
+  private static final double INITIAL_X_SPEED = 500 / FPS;
   private static final double INITIAL_Y_SPEED = 400 / FPS;
   private static final double BALL_RADIUS = 25;
   private static final double SPEED_MULT_STEP = 0.01;
@@ -168,11 +168,10 @@ private class Ball {
 
 private class Paddle {
   public static final int WIDTH = 15;
-  public static final int MARGIN = 50;
+  public static final int MARGIN = 100;
   public static final int BASE_SPEED = 480 / FPS;
-  private static final int PADDLE_DIFFICULTY_MODIFIER = 20;
-  private static final double SPEED_DIFFICULTY_STEP = 0.1;
-  private static final double SPEED_DIFFICULTY_MAX = 2;
+  private static final double SPEED_DIFFICULTY_STEP = 0.25;
+  private static final double SPEED_DIFFICULTY_MAX = 10;
   private static final double SPEED_DIFFICULTY_MIN = 0.5;
   private double speedMult = 1;
   private int paddleHeight;
@@ -190,12 +189,12 @@ private class Paddle {
   }
   
   public void increaseDifficulty(double mult) {
-    // paddleHeight -= PADDLE_DIFFICULTY_MODIFIER; top += PADDLE_DIFFICULTY_MODIFIER / 2;
     speedMult = clamp(speedMult - mult * SPEED_DIFFICULTY_STEP,  SPEED_DIFFICULTY_MIN, SPEED_DIFFICULTY_MAX);
+    println("increase, " + speedMult);
   }
   public void decreaseDifficulty(double mult) {
-    // paddleHeight += PADDLE_DIFFICULTY_MODIFIER; top -= PADDLE_DIFFICULTY_MODIFIER / 2;
     speedMult = clamp(speedMult + mult * SPEED_DIFFICULTY_STEP,  SPEED_DIFFICULTY_MIN, SPEED_DIFFICULTY_MAX);
+    println("decrease, " + speedMult);
   }
   
   public Side getSide() {
