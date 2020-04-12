@@ -1,0 +1,2 @@
+UserID, Stage2Difficulty, UserPreferred
+0, hard, dynamic

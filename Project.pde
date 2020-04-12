@@ -113,7 +113,7 @@ void setup() {
   ClickListener listener = new ClickListener() {
     public void onClick(String id) {
       difficulty = id;
-      if (random(1) < 0.5) {
+      if (random(1) < -0.5) {
         nextDifficulty = "dynamic";
       } else {
         nextDifficulty = difficulty;

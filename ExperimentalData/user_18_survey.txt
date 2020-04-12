@@ -1,0 +1,2 @@
+UserID, Stage2Difficulty, AnswerIndex
+18, dynamic, dynamic
